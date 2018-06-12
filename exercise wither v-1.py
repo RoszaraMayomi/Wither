@@ -19,7 +19,7 @@ pygame.display.set_caption('Wither')
 
 clock = pygame.time.Clock()
 
-block_size = 10
+block_size = 20
 FPS = 30
 
 font = pygame.font.SysFont(None, 25)
@@ -28,9 +28,17 @@ def snake(block_size, snakeList):
     for XnY in snakeList:
         pygame.draw.rect(gameDisplay, green, [XnY[0], XnY[1], block_size, block_size])
 
+def text_objects(text, color):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
+    
 def message_to_screen(msg, color):
-    screen_text = font.render(msg, True, color, black)
-    gameDisplay.blit(screen_text, [display_width / 2, display_height / 2])
+    textSurf, textRect = text_objects(msg, color)
+    #screen_text = font.render(msg, True, color, black)
+    #gameDisplay.blit(screen_text, [display_width / 2, display_height / 2])
+    textRect.center = (display_width / 2), (display_height / 2)
+    gameDisplay.blit(textSurf, textRect)
+    
 #gameLoop
 def gameLoop():
     #main variables
@@ -96,8 +104,10 @@ def gameLoop():
         lead_y += lead_y_change
        
         gameDisplay.fill(white)
-        pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, block_size, block_size])
-        pygame.draw.rect(gameDisplay, black, [randPoisonX, randPoisonY, block_size, block_size])
+
+        appleSize = 30
+        pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, appleSize, appleSize])
+        pygame.draw.rect(gameDisplay, black, [randPoisonX, randPoisonY, appleSize, appleSize])
         
         snakeHead = []
         snakeHead.append(lead_x)
@@ -113,17 +123,19 @@ def gameLoop():
         for eachSegment in snakeList[:-1]:
             if eachSegment == snakeHead:
                 gameOver = True
+#fixing finite collision for both apple and poison variables instead of only top left trigger
+        if lead_x > randAppleX and lead_x < randAppleX + appleSize or lead_x + block_size > randAppleX and lead_x + block_size < randAppleX + appleSize:
+            if lead_y > randAppleY and lead_y < randAppleY + appleSize or lead_y + block_size > randAppleY and lead_y + block_size < randAppleY + appleSize:
+                randAppleX = round(random.randrange(0, display_width - block_size))#/10.0)*10.0
+                randAppleY = round(random.randrange(0, display_height - block_size))#/10.0)*10.0
+                snakeLength += 1
 
-        if lead_x == randAppleX and lead_y == randAppleY:
-            randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
-            randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
-            snakeLength += 1
-
-        if lead_x == randPoisonX and lead_y == randPoisonY:
-            randPoisonX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
-            randPoisonY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
-            snakeLength += -1
-            del snakeList[:-1]
+        if lead_x > randPoisonX and lead_x < randPoisonX + appleSize or lead_x + block_size > randPoisonX and lead_x + block_size < randPoisonX + appleSize:
+            if lead_y > randPoisonY and lead_y < randPoisonY + appleSize or lead_y + block_size > randPoisonY and lead_y + block_size < randPoisonY + appleSize:
+                randPoisonX = round(random.randrange(0, display_width - block_size))#/10.0)*10.0
+                randPoisonY = round(random.randrange(0, display_height - block_size))#/10.0)*10.0
+                snakeLength += -1
+                del snakeList[:-1]
 
         snake(block_size, snakeList)
 
@@ -138,6 +150,7 @@ gameDisplay.fill(black)
 message_to_screen("Black is poison Red is food Life is about attitude", green)
 pygame.display.update()
 time.sleep(2)
+gameDisplay.fill(black)
 message_to_screen('Press a to go please...', white)
 pygame.display.update()
 gameExit2 = False
