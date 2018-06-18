@@ -36,6 +36,10 @@ medfont = pygame.font.SysFont('comicsansms', 50)
 largefont = pygame.font.SysFont('comicsansms', 80)
 
 #functions
+def score(score):
+    text = smallfont.render('Score: ' + str(score), True, black)
+    gameDisplay.blit(text, [0, 0])
+
 def game_start():
     intro = True
     while intro:
@@ -192,6 +196,8 @@ def gameLoop():
                 del snakeList[:-1]
 
         snake(block_size, snakeList)
+
+        score(snakeLength)
 
         pygame.display.update()
 
